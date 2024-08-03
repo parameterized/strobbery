@@ -7,7 +7,7 @@
         padding: 0;
         margin: 0;
         overflow: hidden;
-        background-color: #666;
+        background: linear-gradient(132deg, rgb(249, 206, 183) 0.00%, rgb(173, 209, 242) 100.00%);
     }
 
     canvas {
@@ -30,6 +30,20 @@
         frameRate(24);
 
         initcans();
+        
+        addEventListener('contextmenu', e => {
+            e.preventDefault();
+        });
+        addEventListener("mousedown", e => {
+            if (e.detail > 1) {
+                e.preventDefault();
+            }
+        });
+        addEventListener("keydown", e => {
+            if (e.key === "Tab" || e.key === "Alt" || e.key === " ") {
+                e.preventDefault();
+            }
+        });
     }
 
     function initcans() {
