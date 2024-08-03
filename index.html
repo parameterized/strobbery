@@ -1,0 +1,142 @@
+<title>🍓</title>
+<link rel=icon
+    href='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y="1.1em" font-size="75">🍓</text></svg>'>
+<style>
+    html,
+    body {
+        padding: 0;
+        margin: 0;
+        overflow: hidden;
+        background-color: #666;
+    }
+
+    canvas {
+        display: block;
+    }
+</style>
+
+<script src="lib/p5.js"></script>
+
+<script>
+    let strob;
+    const cans = [];
+
+    function preload() {
+        strob = loadImage("%F0%9F%8D%93.png");
+    }
+
+    function setup() {
+        createCanvas(windowWidth, windowHeight);
+        frameRate(24);
+
+        initcans();
+    }
+
+    function initcans() {
+        cans.length = 0;
+        const center = round(windowWidth / 2 / strob.width);
+        cans.push([
+            { x: center, y: 1 },
+            { x: center, y: 2 },
+        ]);
+        cans.push([
+            { x: center + 3, y: 1 },
+            { x: center + 4, y: 2 },
+        ]);
+    }
+
+    function randint(a, b) {
+        if (b === undefined) {
+            b = a;
+            a = 0;
+        }
+        return a + floor(random(b - a));
+    }
+
+    function clamp(x, a, b) {
+        return min(max(x, a), b);
+    }
+
+    function keyPressed() {
+        if (key === "r") {
+            initcans();
+        }
+    }
+
+    function update() {
+        let can;
+
+        // more
+        const mx = round(mouseX / strob.width);
+        const my = round(mouseY / strob.width);
+        if (mouseIsPressed) {
+            let empty = true;
+            for (can of cans) {
+                for (const end of can) {
+                    if (end.x === mx && end.y === my) {
+                        empty = false;
+                        break;
+                    }
+                }
+            }
+            if (empty) {
+                cans.push([
+                    { x: mx, y: my },
+                    { x: mx + randint(-1, 2), y: my + randint(-1, 2) },
+                ]);
+            }
+        }
+
+        for (let i = 0; i < cans.length; i++) {
+            can = cans[randint(cans.length)];
+            const endidx = randint(2);
+            const end = can[endidx];
+            const otherend = can[1 - endidx];
+
+            // fall
+            if (!(end.x === otherend.x && end.y < otherend.y)) {
+                end.y++;
+            }
+
+            // rise
+            const ground = round(windowHeight / strob.width);
+            let collide = can[endidx].y >= ground;
+            for (const othercan of cans) {
+                if (othercan === can) { continue; }
+                for (const othercanend of othercan) {
+                    if (end.x === othercanend.x && end.y === othercanend.y) {
+                        collide = true;
+                    }
+                }
+                if (collide) {
+                    break;
+                }
+            }
+            if (collide) {
+                end.y--;
+            }
+
+            // no stretchy
+            otherend.x = clamp(otherend.x, end.x - 1, end.x + 1);
+            otherend.y = clamp(otherend.y, end.y - 1, end.y + 1);
+        }
+    }
+
+    function draw() {
+        update();
+        clear();
+
+        for (can of cans) {
+            push();
+            translate(can[0].x * strob.width, can[0].y * strob.width);
+            rotate(atan2(can[1].y - can[0].y, can[1].x - can[0].x) - PI / 2);
+            image(strob, -strob.width / 2, -strob.width / 2);
+            pop();
+
+            // fill("#a55");
+            // circle(can[0].x * strob.width, can[0].y * strob.width, 20);
+            // fill("#5a5");
+            // circle(can[1].x * strob.width, can[1].y * strob.width, 20);
+        }
+    }
+</script>
