@@ -30,7 +30,7 @@
         frameRate(24);
 
         initcans();
-        
+
         addEventListener('contextmenu', e => {
             e.preventDefault();
         });
@@ -152,5 +152,9 @@
             // fill("#5a5");
             // circle(can[1].x * strob.width, can[1].y * strob.width, 20);
         }
+    }
+
+    function windowResized() {
+        resizeCanvas(windowWidth, windowHeight);
     }
 </script>
